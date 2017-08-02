@@ -6,9 +6,9 @@ from .hessian_builders import *
 
 
 def ao_to_mo(tensor, transform):
-    if len(g.shape) == 2:
+    if len(tensor.shape) == 2:
         return transform.T @ tensor @ transform
-    if len(g.shape) == 4:
+    if len(tensor.shape) == 4:
         tensor = np.einsum('pqrs,pt->tqrs', tensor, transform)
         tensor = np.einsum('pqrs,qt->ptrs', tensor, transform)
         tensor = np.einsum('pqrs,rt->pqts', tensor, transform)
@@ -22,16 +22,18 @@ def response(wfn):
     Expects the eri 4-tensor, g,  the Fock matrix, F, the MO coeefcient matrix, C, the left and right response tensors, L and R, and the occupation number, nocc.
     '''
 
-    ndocc = int(wfn.options["nel"] / 2)
+    nocc = int(wfn.options["nel"] / 2)
 
     g = wfn.mints.ao_eri()
     F = wfn.arrays['F']
+    
+    nvirt = F.shape[0] - nocc
 
     get_JK = None # TO BE ADDED
     C = wfn.arrays['C']
     
-    L_ao = wfn.mints(ao_dipoles())
-    R_ao = wfn.mints(ao_dipoles())
+    L_ao = wfn.mints.ao_dipole()
+    R_ao = wfn.mints.ao_dipole()
    
     R = np.zeros((3,nocc * nvirt))
     L = np.zeros((3,nocc * nvirt))
@@ -44,7 +46,7 @@ def response(wfn):
 
     nbas = F.shape[0]
     nvirt = nbas - nocc 
-    opeartor_vs = 1
+    operator_vs = 0
     if operator_vs == 0:
         E = get_E(F, g, nocc, nbas)
         E_inv_R = np.linalg.solve(E,R.T)
