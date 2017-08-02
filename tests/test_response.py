@@ -18,7 +18,7 @@ def test_response():
     # Compute RHF
     scf_energy = quest.scf_module.compute_rhf(wfn, df=False, diis=False)
 
-    polarizability = quest.response.response(wfn)
+    polarizability = quest.response(wfn)
 
     test_polarizability = np.array([[2.97055439, 0.000, 0.000], [0.000, 10.5001391, 0.000], [0.000, 0.000, 6.64751258]])
 

@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.sparse.linalg as spla
 import scipy as sp
-from hessian_builders import *
+from .hessian_builders import *
 
 
 
@@ -21,7 +21,10 @@ def response(wfn):
     Calculates the CPHF response.
     Expects the eri 4-tensor, g,  the Fock matrix, F, the MO coeefcient matrix, C, the left and right response tensors, L and R, and the occupation number, nocc.
     '''
-    g = wfn.mints(ao_eri())
+
+    ndocc = int(wfn.options["nel"] / 2)
+
+    g = wfn.mints.ao_eri()
     F = wfn.arrays['F']
 
     get_JK = None # TO BE ADDED
