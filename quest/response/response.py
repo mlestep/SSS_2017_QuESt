@@ -1,8 +1,9 @@
 import numpy as np
 import scipy.sparse.linalg as spla
 import scipy as sp
-from hessian_builders import *
+from . hessian_builders import *
 
+from quest import solvers
 
 
 def ao_to_mo(tensor, transform):
@@ -41,14 +42,18 @@ def response(wfn):
 
     nbas = F.shape[0]
     nvirt = nbas - nocc 
-    opeartor_vs = 1
+    opeartor_vs = 0
+    E_inv_R = np.zeros((3,nocc * nvirt))
     if operator_vs == 0:
         E = get_E(F, g, nocc, nbas)
-        E_inv_R = np.linalg.solve(E,R.T)
+        for i in range(3):
+            E_inv_R[i] = solvers.helper_PCG_direct(E,R[i])
+
     elif operator_vs == 1:
         E_kappa = E_kappa_MO(F, g, nocc, nbas)
         E_inv_R = spla.cg(E_kappa, R)
     elif operator_vs == 2:
         E_kappa = E_kappa_AO(F, g, C, get_JK, nocc, nbas)
         E_inv_R = spla.cg(E_kappa, R)
+        
     return L @ E_inv_R
